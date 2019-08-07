@@ -1,5 +1,6 @@
 {
   "name": "ngx-router-meta",
+  "description": "Configure HTML meta tags in route configuration of Angular",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^8.0.0",
