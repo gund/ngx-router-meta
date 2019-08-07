@@ -15,8 +15,8 @@
     "typeRoots": ["node_modules/@types"],
     "lib": ["es2018", "dom"],
     "paths": {
-      "ngx-router-meta": ["dist/ngx-router-meta"],
-      "ngx-router-meta/*": ["dist/ngx-router-meta/*"]
+      "ngx-router-meta": ["projects/ngx-router-meta/src"],
+      "ngx-router-meta/*": ["projects/ngx-router-meta/src/*"]
     }
   },
   "angularCompilerOptions": {
