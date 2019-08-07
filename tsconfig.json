@@ -17,7 +17,15 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ngx-router-meta": [
+        "dist/ngx-router-meta"
+      ],
+      "ngx-router-meta/*": [
+        "dist/ngx-router-meta/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
