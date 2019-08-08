@@ -3,8 +3,14 @@ import { Data, Route, Routes } from '@angular/router';
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
 
+export interface RouterMetaInterpolation {
+  start: string;
+  end: string;
+}
+
 export interface RouterMetaConfig {
   defaultMeta?: RouteMeta;
+  interpolation?: RouterMetaInterpolation;
 }
 
 export interface MetaContext extends Indexable<any> {}

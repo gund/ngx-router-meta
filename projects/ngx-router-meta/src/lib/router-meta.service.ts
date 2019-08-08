@@ -1,54 +1,93 @@
 import { Inject, Injectable, InjectionToken } from '@angular/core';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
-import { ActivatedRoute, Data, NavigationEnd, Router } from '@angular/router';
-import { isObservable, merge, Observable, of, Subject } from 'rxjs';
+import { ActivatedRoute, Data, Router } from '@angular/router';
 import {
+  combineLatest,
+  EMPTY,
+  isObservable,
+  Observable,
+  of,
+  Subject,
+} from 'rxjs';
+import {
+  catchError,
   filter,
   map,
-  mapTo,
   scan,
   startWith,
   switchAll,
   switchMap,
-  withLatestFrom,
 } from 'rxjs/operators';
 
-import { isDataWithMeta, MetaContext, RouterMetaConfig } from './router-meta';
+import {
+  isDataWithMeta,
+  MetaContext,
+  RouterMetaConfig,
+  RouterMetaInterpolation,
+} from './router-meta';
 import { Indexable } from './types';
+import { escapeRegExp, isNavigationEndEvent } from './util';
 
 export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
   'ROUTE_META_CONFIG',
 );
 
-const RESET_CONTEXT = { __resetContext: true };
+interface MetaInfo {
+  replace: RegExp;
+  value: any;
+}
+
+interface ProcessedMetaContext extends Indexable<MetaInfo> {}
 
 @Injectable({ providedIn: 'root' })
 export class RouterMetaService {
+  private static interpolation: RouterMetaInterpolation = {
+    start: '{',
+    end: '}',
+  };
+
   private initialized = false;
   private metaTags: Indexable<boolean> = {};
+  private ctxNameCache: Indexable<RegExp> = {};
+
+  private interpolation =
+    this.config.interpolation || RouterMetaService.interpolation;
 
   private defaultMeta = this.config.defaultMeta;
+
   private originalTitle = this.title.getTitle();
 
   private navigationEnd$ = this.router.events.pipe(
-    filter(event => event instanceof NavigationEnd),
+    filter(isNavigationEndEvent),
+  );
+
+  private routeData$ = this.navigationEnd$.pipe(
+    map(() => this.router.routerState.root),
+    map(route => this.getLastRoute(route)),
+    filter(route => route.outlet === 'primary'),
+    switchMap(route => route.data),
   );
 
   private metaContext$$ = new Subject<Observable<MetaContext>>();
-  private metaContext$: Observable<MetaContext> = merge(
-    this.metaContext$$.pipe(switchAll()),
-    this.navigationEnd$.pipe(mapTo(RESET_CONTEXT)), // Reset context after every navigation
-  ).pipe(
-    scan((acc, ctx) => (ctx === RESET_CONTEXT ? {} : { ...acc, ...ctx })), // Merge contexts
-    startWith({}),
-  );
+  private metaContext$: Observable<ProcessedMetaContext> = this.navigationEnd$ // Start fresh after every navigation
+    .pipe(
+      switchMap(() =>
+        this.metaContext$$.pipe(switchAll()).pipe(catchError(() => EMPTY)),
+      ),
+      map(ctx => this.processContext(ctx)),
+      scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
+      startWith({}),
+    );
 
   constructor(
     @Inject(ROUTE_META_CONFIG) private config: RouterMetaConfig,
     private router: Router,
     private title: Title,
     private meta: Meta,
-  ) {}
+  ) {
+    this.interpolation.start = escapeRegExp(this.interpolation.start);
+    this.interpolation.end = escapeRegExp(this.interpolation.end);
+  }
 
   provideContext(ctx: MetaContext | Observable<MetaContext>) {
     this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
@@ -61,18 +100,12 @@ export class RouterMetaService {
     }
     this.initialized = true;
 
-    this.navigationEnd$
-      .pipe(
-        map(() => this.router.routerState.root),
-        map(route => this.getLastRoute(route)),
-        filter(route => route.outlet === 'primary'),
-        switchMap(route => route.data),
-        withLatestFrom(this.metaContext$),
-      )
-      .subscribe(([data, ctx]) => this.updateAllMeta(data, ctx));
+    combineLatest(this.routeData$, this.metaContext$).subscribe(([data, ctx]) =>
+      this.updateAllMeta(data, ctx),
+    );
   }
 
-  private updateAllMeta(data: Data, ctx: MetaContext = {}) {
+  private updateAllMeta(data: Data, ctx: ProcessedMetaContext = {}) {
     if (!isDataWithMeta(data)) {
       this.resetAllMeta(ctx);
       return;
@@ -93,12 +126,12 @@ export class RouterMetaService {
       .forEach(name => this.resetMeta(name, ctx));
   }
 
-  private resetAllMeta(ctx: MetaContext) {
+  private resetAllMeta(ctx: ProcessedMetaContext) {
     this.resetTitle(ctx);
     Object.keys(this.metaTags).forEach(name => this.resetMeta(name, ctx));
   }
 
-  private updateTitle(title?: string, ctx?: MetaContext) {
+  private updateTitle(title?: string, ctx?: ProcessedMetaContext) {
     if (title) {
       this.title.setTitle(this.templateStr(title, ctx));
     } else {
@@ -106,7 +139,7 @@ export class RouterMetaService {
     }
   }
 
-  private resetTitle(ctx?: MetaContext) {
+  private resetTitle(ctx?: ProcessedMetaContext) {
     this.title.setTitle(
       (this.defaultMeta && this.defaultMeta.title) || this.originalTitle,
     );
@@ -115,7 +148,7 @@ export class RouterMetaService {
   private updateMeta(
     name: string,
     content?: string | MetaDefinition,
-    ctx?: MetaContext,
+    ctx?: ProcessedMetaContext,
   ) {
     if (content) {
       const meta: MetaDefinition =
@@ -141,13 +174,37 @@ export class RouterMetaService {
     }
   }
 
-  private templateStr(str?: string, data?: MetaContext) {
+  private processContext(ctx: MetaContext): ProcessedMetaContext {
+    return Object.keys(ctx).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: {
+          replace: this.getContextReplace(key),
+          value: ctx[key],
+        },
+      }),
+      {} as ProcessedMetaContext,
+    );
+  }
+
+  private getContextReplace(name: string) {
+    return name in this.ctxNameCache
+      ? this.ctxNameCache[name]
+      : (this.ctxNameCache[name] = new RegExp(
+          `${this.interpolation.start}${escapeRegExp(name)}${
+            this.interpolation.end
+          }`,
+          'g',
+        ));
+  }
+
+  private templateStr(str?: string, data?: ProcessedMetaContext) {
     if (!str || !data) {
       return '';
     }
 
     return Object.keys(data).reduce(
-      (s, key) => s.replace(`{${key}}`, data[key]),
+      (s, key) => s.replace(data[key].replace, data[key].value),
       str,
     );
   }

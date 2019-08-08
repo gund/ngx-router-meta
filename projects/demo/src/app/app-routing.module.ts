@@ -8,7 +8,12 @@ const routes: RoutesWithMeta = [
   {
     path: '',
     component: ShowRouteComponent,
-    data: { meta: { title: 'Home Page', description: 'Check me out' } },
+    data: {
+      meta: {
+        title: '{msg} | Message ({count})',
+        description: 'Check me out',
+      },
+    },
   },
   {
     path: 'route1',
