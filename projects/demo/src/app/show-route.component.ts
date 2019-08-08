@@ -1,20 +1,29 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, NgZone, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RouterMetaService } from 'ngx-router-meta';
-import { timer } from 'rxjs';
+import { merge, timer } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-show-route',
   template: `
-    <p>Current url: {{ url }}</p>
+    <p>Current title: {{ title$ | async }}</p>
+    <p>Current url: {{ url$ | async }}</p>
   `,
 })
 export class ShowRouteComponent implements OnInit {
-  url = this.router.url;
+  title$ = merge(this.route.url, this.zone.onStable).pipe(
+    map(() => this.titleService.getTitle()),
+  );
+
+  url$ = merge(this.route.url).pipe(map(() => this.router.url));
 
   constructor(
+    private zone: NgZone,
+    private titleService: Title,
     private router: Router,
+    private route: ActivatedRoute,
     private routerMetaService: RouterMetaService,
   ) {}
 
