@@ -13,7 +13,7 @@ const routes: RoutesWithMeta = [
   {
     path: 'route1',
     component: ShowRouteComponent,
-    data: { meta: { title: 'Route 1 Page' } },
+    data: { meta: { title: 'Route 1 Page', 'custom:tag': 'Works!' } },
   },
   { path: 'route2', component: ShowRouteComponent },
 ];
