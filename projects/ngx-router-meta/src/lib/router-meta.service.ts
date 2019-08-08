@@ -79,14 +79,18 @@ export class RouterMetaService {
     }
 
     const { meta } = data;
-    const { title, description, ...otherMeta } = meta;
+    const { title, ...otherMeta } = meta;
 
     this.updateTitle(title, ctx);
-    this.updateMeta('description', description, ctx);
 
     Object.keys(otherMeta).forEach(name =>
       this.updateMeta(name, otherMeta[name], ctx),
     );
+
+    // Cleanup leftover meta tags
+    Object.keys(this.metaTags)
+      .filter(name => name in otherMeta === false)
+      .forEach(name => this.resetMeta(name, ctx));
   }
 
   private resetAllMeta(ctx: MetaContext) {
@@ -132,7 +136,7 @@ export class RouterMetaService {
     if (defaultMeta) {
       this.updateMeta(name, defaultMeta, ctx);
     } else {
-      this.meta.removeTag(`name=${name}`);
+      this.meta.removeTag(`name="${name}"`);
       delete this.metaTags[name];
     }
   }
