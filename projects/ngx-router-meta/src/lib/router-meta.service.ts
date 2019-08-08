@@ -52,6 +52,8 @@ export class RouterMetaService {
 
   private interpolation =
     this.config.interpolation || RouterMetaService.interpolation;
+  private interpolationStart = escapeRegExp(this.interpolation.start);
+  private interpolationEnd = escapeRegExp(this.interpolation.end);
 
   private defaultMeta = this.config.defaultMeta;
 
@@ -84,10 +86,7 @@ export class RouterMetaService {
     private router: Router,
     private title: Title,
     private meta: Meta,
-  ) {
-    this.interpolation.start = escapeRegExp(this.interpolation.start);
-    this.interpolation.end = escapeRegExp(this.interpolation.end);
-  }
+  ) {}
 
   provideContext(ctx: MetaContext | Observable<MetaContext>) {
     this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
@@ -191,8 +190,8 @@ export class RouterMetaService {
     return name in this.ctxNameCache
       ? this.ctxNameCache[name]
       : (this.ctxNameCache[name] = new RegExp(
-          `${this.interpolation.start}${escapeRegExp(name)}${
-            this.interpolation.end
+          `${this.interpolationStart}${escapeRegExp(name)}${
+            this.interpolationEnd
           }`,
           'g',
         ));
