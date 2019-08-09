@@ -1,0 +1,5 @@
+diff a/projects/demo-ssr/src/main.ts b/projects/demo-ssr/src/main.ts	(rejected hunks)
+@@ -11 +11,2 @@ if (environment.production) {
+-platformBrowserDynamic().bootstrapModule(AppModule)
++platformBrowserDynamic()
++  .bootstrapModule(AppModule)

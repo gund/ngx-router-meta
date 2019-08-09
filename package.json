@@ -10,7 +10,11 @@
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\""
+    "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
+    "compile:demo-ssr:server": "webpack --config projects/demo-ssr/webpack.server.config.js --progress --colors",
+    "serve:demo-ssr:ssr": "node dist/demo-ssr/server",
+    "build:demo-ssr:ssr": "npm run build:demo-ssr:all && npm run compile:demo-ssr:server",
+    "build:demo-ssr:all": "ng build demo-ssr --prod && ng run demo-ssr:server:production --bundleDependencies all"
   },
   "private": true,
   "dependencies": {
@@ -21,8 +25,11 @@
     "@angular/forms": "~8.2.0",
     "@angular/platform-browser": "~8.2.0",
     "@angular/platform-browser-dynamic": "~8.2.0",
+    "@angular/platform-server": "~8.2.0",
     "@angular/router": "~8.2.0",
     "@nguniversal/express-engine": "^8.1.1",
+    "@nguniversal/module-map-ngfactory-loader": "8.1.1",
+    "express": "^4.15.2",
     "rxjs": "~6.4.0",
     "tslib": "^1.10.0",
     "zone.js": "~0.9.1"
@@ -36,6 +43,7 @@
     "@angular/language-service": "~8.2.0",
     "@commitlint/cli": "^8.1.0",
     "@commitlint/config-conventional": "^8.1.0",
+    "@types/express": "^4.17.0",
     "@types/jest": "^24.0.17",
     "@types/node": "~8.9.4",
     "codelyzer": "^5.0.0",
@@ -49,10 +57,12 @@
     "prettier": "^1.18.2",
     "protractor": "~5.4.0",
     "rimraf": "^2.6.3",
+    "ts-loader": "^5.2.0",
     "ts-node": "~7.0.0",
     "tsickle": "^0.36.0",
     "tslint": "~5.15.0",
-    "typescript": "~3.5.3"
+    "typescript": "~3.5.3",
+    "webpack-cli": "^3.1.0"
   },
   "config": {
     "commitizen": {

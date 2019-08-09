@@ -1,0 +1,17 @@
+diff a/projects/demo-ssr/src/app/app.module.ts b/projects/demo-ssr/src/app/app.module.ts	(rejected hunks)
+@@ -8,7 +8,2 @@ import { AppComponent } from './app.component';
+-  declarations: [
+-    AppComponent
+-  ],
+-  imports: [
+-    BrowserModule,
+-    AppRoutingModule
+-  ],
++  declarations: [AppComponent],
++  imports: [BrowserModule, AppRoutingModule],
+@@ -16 +11 @@ import { AppComponent } from './app.component';
+-  bootstrap: [AppComponent]
++  bootstrap: [AppComponent],
+@@ -18 +13 @@ import { AppComponent } from './app.component';
+-export class AppModule { }
++export class AppModule {}

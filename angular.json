@@ -52,9 +52,7 @@
               "projects/demo/src/favicon.ico",
               "projects/demo/src/assets"
             ],
-            "styles": [
-              "projects/demo/src/styles.css"
-            ],
+            "styles": ["projects/demo/src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -118,7 +116,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/demo-ssr",
+            "outputPath": "dist/demo-ssr/browser",
             "index": "projects/demo-ssr/src/index.html",
             "main": "projects/demo-ssr/src/main.ts",
             "polyfills": "projects/demo-ssr/src/polyfills.ts",
@@ -128,9 +126,7 @@
               "projects/demo-ssr/src/favicon.ico",
               "projects/demo-ssr/src/assets"
             ],
-            "styles": [
-              "projects/demo-ssr/src/styles.css"
-            ],
+            "styles": ["projects/demo-ssr/src/styles.css"],
             "scripts": []
           },
           "configurations": {
@@ -180,6 +176,29 @@
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "demo-ssr:build"
+          }
+        },
+        "server": {
+          "builder": "@angular-devkit/build-angular:server",
+          "options": {
+            "outputPath": "dist/demo-ssr/server",
+            "main": "projects/demo-ssr/src/main.server.ts",
+            "tsConfig": "projects/demo-ssr/tsconfig.server.json"
+          },
+          "configurations": {
+            "production": {
+              "fileReplacements": [
+                {
+                  "replace": "projects/demo-ssr/src/environments/environment.ts",
+                  "with": "projects/demo-ssr/src/environments/environment.prod.ts"
+                }
+              ],
+              "sourceMap": false,
+              "optimization": {
+                "scripts": false,
+                "styles": true
+              }
+            }
           }
         }
       }
