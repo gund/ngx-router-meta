@@ -140,7 +140,10 @@ export class RouterMetaService {
 
   private resetTitle(ctx?: ProcessedMetaContext) {
     this.title.setTitle(
-      (this.defaultMeta && this.defaultMeta.title) || this.originalTitle,
+      this.templateStr(
+        (this.defaultMeta && this.defaultMeta.title) || this.originalTitle,
+        ctx,
+      ),
     );
   }
 
@@ -199,7 +202,7 @@ export class RouterMetaService {
 
   private templateStr(str?: string, data?: ProcessedMetaContext) {
     if (!str || !data) {
-      return '';
+      return str || '';
     }
 
     return Object.keys(data).reduce(
