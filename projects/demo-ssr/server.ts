@@ -14,10 +14,9 @@
  * from your application's main.server.ts file, as seen below with the
  * import for `ngExpressEngine`.
  */
-import 'zone.js/dist/zone-node';
-
 import * as express from 'express';
 import { join } from 'path';
+import 'zone.js/dist/zone-node';
 
 // Express server
 const app = express();
@@ -58,6 +57,11 @@ app.get(
 // All regular routes use the Universal engine
 app.get('*', (req: any, res: any) => {
   res.render('index', { req });
+});
+
+app.use((err: any, req: any, res: any) => {
+  console.error(err.stack);
+  res.status(500).send('Server Error');
 });
 
 // Start up the Node server

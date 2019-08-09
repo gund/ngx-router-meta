@@ -1,7 +1,27 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
+import { RoutesWithMeta } from 'ngx-router-meta';
 
-const routes: Routes = [];
+import { ShowRouteComponent } from './show-route.component';
+
+const routes: RoutesWithMeta = [
+  {
+    path: '',
+    component: ShowRouteComponent,
+    data: {
+      meta: {
+        title: '{msg} | Message ({count})',
+        description: 'Check me out',
+      },
+    },
+  },
+  {
+    path: 'route1',
+    component: ShowRouteComponent,
+    data: { meta: { title: 'Route 1 Page', 'custom:tag': 'Works!' } },
+  },
+  { path: 'route2', component: ShowRouteComponent },
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

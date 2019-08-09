@@ -1,4 +1,4 @@
-import { Inject, Injectable, InjectionToken } from '@angular/core';
+import { Inject, Injectable, InjectionToken, OnDestroy } from '@angular/core';
 import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Data, Router } from '@angular/router';
 import {
@@ -17,6 +17,7 @@ import {
   startWith,
   switchAll,
   switchMap,
+  takeUntil,
 } from 'rxjs/operators';
 
 import {
@@ -40,7 +41,7 @@ interface MetaInfo {
 interface ProcessedMetaContext extends Indexable<MetaInfo> {}
 
 @Injectable({ providedIn: 'root' })
-export class RouterMetaService {
+export class RouterMetaService implements OnDestroy {
   private static interpolation: RouterMetaInterpolation = {
     start: '{',
     end: '}',
@@ -58,6 +59,8 @@ export class RouterMetaService {
   private defaultMeta = this.config.defaultMeta;
 
   private originalTitle = this.title.getTitle();
+
+  private destroyed$ = new Subject<void>();
 
   private navigationEnd$ = this.router.events.pipe(
     filter(isNavigationEndEvent),
@@ -92,6 +95,10 @@ export class RouterMetaService {
     this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
   }
 
+  ngOnDestroy(): void {
+    this.destroyed$.next();
+  }
+
   /** @internal */
   _setup() {
     if (this.initialized) {
@@ -99,9 +106,9 @@ export class RouterMetaService {
     }
     this.initialized = true;
 
-    combineLatest(this.routeData$, this.metaContext$).subscribe(([data, ctx]) =>
-      this.updateAllMeta(data, ctx),
-    );
+    combineLatest(this.routeData$, this.metaContext$)
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(([data, ctx]) => this.updateAllMeta(data, ctx));
   }
 
   private updateAllMeta(data: Data, ctx: ProcessedMetaContext = {}) {

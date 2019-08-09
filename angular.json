@@ -130,6 +130,13 @@
             "scripts": []
           },
           "configurations": {
+            "ssr": {
+              "optimization": true,
+              "outputHashing": "all",
+              "namedChunks": false,
+              "aot": true,
+              "buildOptimizer": true
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -183,7 +190,10 @@
           "options": {
             "outputPath": "dist/demo-ssr/server",
             "main": "projects/demo-ssr/src/main.server.ts",
-            "tsConfig": "projects/demo-ssr/tsconfig.server.json"
+            "tsConfig": "projects/demo-ssr/tsconfig.server.json",
+            "optimization": {
+              "scripts": false
+            }
           },
           "configurations": {
             "production": {

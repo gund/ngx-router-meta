@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { RouterMetaModule } from 'ngx-router-meta';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { ShowRouteComponent } from './show-route.component';
 
 @NgModule({
-  declarations: [AppComponent],
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    RouterMetaModule.forRoot(),
     AppRoutingModule,
   ],
-  providers: [],
+  declarations: [AppComponent, ShowRouteComponent],
   bootstrap: [AppComponent],
+  providers: [],
 })
 export class AppModule {}
