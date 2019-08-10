@@ -1,5 +1,14 @@
 import { MetaDefinition } from '@angular/platform-browser';
 import { Data, Route, Routes } from '@angular/router';
+import { EMPTY, Observable, OperatorFunction } from 'rxjs';
+import {
+  catchError,
+  map,
+  scan,
+  startWith,
+  switchAll,
+  switchMap,
+} from 'rxjs/operators';
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
 
@@ -50,4 +59,22 @@ export type MergeRoutes<T extends Routes> = UnionToIntersection<
 
 export function isDataWithMeta(data: Data): data is Required<DataWithMeta> {
   return !!data.meta;
+}
+
+/**
+ * Allows to accumulate many context objects streams into one stream
+ * while merging all context objects together
+ * and running any transformation function
+ */
+export function unfoldContext<R>(
+  ctx$$: Observable<Observable<MetaContext>>,
+  mapFn: (ctx: MetaContext) => R,
+): OperatorFunction<any, R> {
+  return o$ =>
+    o$.pipe(
+      switchMap(() => ctx$$.pipe(switchAll()).pipe(catchError(() => EMPTY))),
+      map(ctx => mapFn(ctx)),
+      scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
+      startWith({} as R),
+    );
 }

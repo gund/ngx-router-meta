@@ -15,24 +15,8 @@ import {
   TransferState,
 } from '@angular/platform-browser';
 import { ActivatedRoute, Data, Router } from '@angular/router';
-import {
-  combineLatest,
-  EMPTY,
-  isObservable,
-  Observable,
-  of,
-  Subject,
-} from 'rxjs';
-import {
-  catchError,
-  filter,
-  map,
-  scan,
-  startWith,
-  switchAll,
-  switchMap,
-  takeUntil,
-} from 'rxjs/operators';
+import { combineLatest, isObservable, Observable, of, Subject } from 'rxjs';
+import { filter, map, switchMap, takeUntil } from 'rxjs/operators';
 
 import {
   isDataWithMeta,
@@ -41,6 +25,7 @@ import {
   RouteMetaTemplates,
   RouterMetaConfig,
   RouterMetaInterpolation,
+  unfoldContext,
 } from './router-meta';
 import { Indexable } from './types';
 import { escapeRegExp, isNavigationEndEvent } from './util';
@@ -52,6 +37,7 @@ interface MetaInfo {
 
 interface ProcessedMetaContext extends Indexable<MetaInfo> {}
 
+/** @internal */
 export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
   'ROUTE_META_CONFIG',
 );
@@ -93,16 +79,17 @@ export class RouterMetaService implements OnDestroy {
     switchMap(route => route.data),
   );
 
+  private metaDefaultContext$$ = new Subject<Observable<MetaContext>>();
   private metaContext$$ = new Subject<Observable<MetaContext>>();
+  private metaDefaultContext$: Observable<ProcessedMetaContext> = of(null).pipe(
+    unfoldContext(this.metaDefaultContext$$, ctx => this.processContext(ctx)),
+  );
   private metaContext$: Observable<ProcessedMetaContext> = this.navigationEnd$ // Start fresh after every navigation
-    .pipe(
-      switchMap(() =>
-        this.metaContext$$.pipe(switchAll()).pipe(catchError(() => EMPTY)),
-      ),
-      map(ctx => this.processContext(ctx)),
-      scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
-      startWith({}),
-    );
+    .pipe(unfoldContext(this.metaContext$$, ctx => this.processContext(ctx)));
+  private context$ = combineLatest(
+    this.metaDefaultContext$,
+    this.metaContext$,
+  ).pipe(map(([defaultCtx, ctx]) => ({ ...defaultCtx, ...ctx })));
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -113,14 +100,38 @@ export class RouterMetaService implements OnDestroy {
     @Optional() private transferState: TransferState | undefined,
   ) {}
 
+  /**
+   * Provided context will be available between router navigations
+   *
+   * Multiple contexts will be merged together
+   */
+  provideDefaultContext(ctx: MetaContext | Observable<MetaContext>) {
+    this.metaDefaultContext$$.next(isObservable(ctx) ? ctx : of(ctx));
+  }
+
+  /**
+   * Provided context will be available ONLY until next router navigation
+   *
+   * Multiple contexts will be merged together
+   *
+   * If you want to persist context between navigations -
+   * use {@link RouterMetaService#provideDefaultContext()}
+   */
   provideContext(ctx: MetaContext | Observable<MetaContext>) {
     this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
   }
 
+  /**
+   * Returns original title of index page.
+   *
+   * If SSR was used with {@link StateTransfer} -
+   * then original title will be preserved between server and client states
+   */
   getOriginalTitle() {
     return this.originalTitle;
   }
 
+  /** @internal */
   ngOnDestroy(): void {
     this.destroyed$.next();
   }
@@ -136,7 +147,7 @@ export class RouterMetaService implements OnDestroy {
       this.transferState.set(TITLE_STATE, this.originalTitle);
     }
 
-    combineLatest(this.routeData$, this.metaContext$)
+    combineLatest(this.routeData$, this.context$)
       .pipe(takeUntil(this.destroyed$))
       .subscribe(([data, ctx]) => this.updateAllMeta(data, ctx));
   }
