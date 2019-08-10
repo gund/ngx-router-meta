@@ -13,7 +13,15 @@ import { ShowRouteComponent } from './show-route.component';
   imports: [
     BrowserModule.withServerTransition({ appId: 'demo-ssr' }),
     BrowserTransferStateModule,
-    RouterMetaModule.forRoot(),
+    RouterMetaModule.forRoot({
+      defaultMeta: {
+        _templates_: {
+          title: '{title} | {appName}',
+          description: 'Desc: {description}',
+        },
+        description: 'Nothing to say by default...',
+      },
+    }),
     AppRoutingModule,
   ],
   declarations: [AppComponent, ShowRouteComponent],

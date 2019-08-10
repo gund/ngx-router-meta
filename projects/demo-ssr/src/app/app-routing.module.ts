@@ -10,7 +10,7 @@ const routes: RoutesWithMeta = [
     component: ShowRouteComponent,
     data: {
       meta: {
-        title: '{msg} | Message ({count})',
+        title: '{msg} - Messages ({count})',
         description: 'Check me out',
       },
     },
@@ -20,7 +20,15 @@ const routes: RoutesWithMeta = [
     component: ShowRouteComponent,
     data: { meta: { title: 'Route 1 Page', 'custom:tag': 'Works!' } },
   },
-  { path: 'route2', component: ShowRouteComponent },
+  {
+    path: 'route2',
+    component: ShowRouteComponent,
+  },
+  {
+    path: 'route3',
+    component: ShowRouteComponent,
+    data: { meta: { _templates_: { title: 'Custom format | {title}' } } },
+  },
 ];
 
 @NgModule({

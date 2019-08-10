@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { RouterMetaService } from 'ngx-router-meta';
 
 @Component({
   selector: 'app-root',
@@ -13,9 +14,18 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
       <li>
         <h2><a routerLink="/route2">Route 2</a></h2>
       </li>
+      <li>
+        <h2><a routerLink="/route3">Route 3</a></h2>
+      </li>
     </ul>
     <router-outlet></router-outlet>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent implements OnInit {
+  constructor(private routerMetaService: RouterMetaService) {}
+
+  ngOnInit(): void {
+    this.routerMetaService.provideDefaultContext({ appName: 'DEMO' });
+  }
+}
