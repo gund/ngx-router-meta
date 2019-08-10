@@ -146,16 +146,16 @@ export class RouterMetaService implements OnDestroy {
       _templates_: defaultTemplates,
       ...defaultAllMeta
     } = this.defaultMeta;
-    const { title: _, ...defaultOtherMeta } = defaultAllMeta;
 
     if (!isDataWithMeta(data)) {
-      this.resetAllMeta(ctx, defaultOtherMeta);
+      this.resetAllMeta(ctx, defaultAllMeta);
       return;
     }
 
     const { meta } = data;
     const { _templates_, ...allMeta } = meta;
     const { title, ...otherMeta } = allMeta;
+    const { title: _, ...defaultOtherMeta } = defaultAllMeta;
 
     const allMetaDefaulted = { ...defaultAllMeta, ...allMeta };
     const otherMetaDefaulted = { ...defaultOtherMeta, ...otherMeta };
@@ -184,13 +184,15 @@ export class RouterMetaService implements OnDestroy {
       .forEach(name => this.resetMeta(name, ctx, templates, processedMeta));
   }
 
-  private resetAllMeta(ctx: ProcessedMetaContext, defaultMeta?: RouteMeta) {
-    this.resetTitle(ctx, this.defaultMeta._templates_);
+  private resetAllMeta(ctx: ProcessedMetaContext, defaultMeta: RouteMeta) {
+    const { title, ...defaultOtherMeta } = defaultMeta;
+    const metaDefaulted = { ...defaultOtherMeta, ...this.metaTags };
+    const meta = this.processContext(defaultMeta);
 
-    const metaDefaulted = { ...defaultMeta, ...this.metaTags };
+    this.resetTitle(ctx, this.defaultMeta._templates_, meta);
 
     Object.keys(metaDefaulted).forEach(name =>
-      this.resetMeta(name, ctx, this.defaultMeta._templates_),
+      this.resetMeta(name, ctx, this.defaultMeta._templates_, meta),
     );
   }
 
