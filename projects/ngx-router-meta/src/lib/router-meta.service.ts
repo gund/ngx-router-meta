@@ -1,5 +1,19 @@
-import { Inject, Injectable, InjectionToken, OnDestroy } from '@angular/core';
-import { Meta, MetaDefinition, Title } from '@angular/platform-browser';
+import { isPlatformServer } from '@angular/common';
+import {
+  Inject,
+  Injectable,
+  InjectionToken,
+  OnDestroy,
+  Optional,
+  PLATFORM_ID,
+} from '@angular/core';
+import {
+  makeStateKey,
+  Meta,
+  MetaDefinition,
+  Title,
+  TransferState,
+} from '@angular/platform-browser';
 import { ActivatedRoute, Data, Router } from '@angular/router';
 import {
   combineLatest,
@@ -29,16 +43,18 @@ import {
 import { Indexable } from './types';
 import { escapeRegExp, isNavigationEndEvent } from './util';
 
-export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
-  'ROUTE_META_CONFIG',
-);
-
 interface MetaInfo {
   replace: RegExp;
   value: any;
 }
 
 interface ProcessedMetaContext extends Indexable<MetaInfo> {}
+
+export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
+  'ROUTE_META_CONFIG',
+);
+
+const TITLE_STATE = makeStateKey<string>('RouterMetaTitle');
 
 @Injectable({ providedIn: 'root' })
 export class RouterMetaService implements OnDestroy {
@@ -56,9 +72,11 @@ export class RouterMetaService implements OnDestroy {
   private interpolationStart = escapeRegExp(this.interpolation.start);
   private interpolationEnd = escapeRegExp(this.interpolation.end);
 
-  private defaultMeta = this.config.defaultMeta;
+  private defaultMeta = this.config.defaultMeta || {};
 
-  private originalTitle = this.title.getTitle();
+  private originalTitle = this.transferState
+    ? this.transferState.get(TITLE_STATE, this.title.getTitle())
+    : this.title.getTitle();
 
   private destroyed$ = new Subject<void>();
 
@@ -85,14 +103,20 @@ export class RouterMetaService implements OnDestroy {
     );
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
     @Inject(ROUTE_META_CONFIG) private config: RouterMetaConfig,
     private router: Router,
     private title: Title,
     private meta: Meta,
+    @Optional() private transferState: TransferState | undefined,
   ) {}
 
   provideContext(ctx: MetaContext | Observable<MetaContext>) {
     this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
+  }
+
+  getOriginalTitle() {
+    return this.originalTitle;
   }
 
   ngOnDestroy(): void {
@@ -105,6 +129,10 @@ export class RouterMetaService implements OnDestroy {
       return;
     }
     this.initialized = true;
+
+    if (this.transferState && isPlatformServer(this.platformId)) {
+      this.transferState.set(TITLE_STATE, this.originalTitle);
+    }
 
     combineLatest(this.routeData$, this.metaContext$)
       .pipe(takeUntil(this.destroyed$))
@@ -147,10 +175,7 @@ export class RouterMetaService implements OnDestroy {
 
   private resetTitle(ctx?: ProcessedMetaContext) {
     this.title.setTitle(
-      this.templateStr(
-        (this.defaultMeta && this.defaultMeta.title) || this.originalTitle,
-        ctx,
-      ),
+      this.templateStr(this.defaultMeta.title || this.originalTitle, ctx),
     );
   }
 
@@ -173,7 +198,7 @@ export class RouterMetaService implements OnDestroy {
   }
 
   private resetMeta(name: string, ctx?: MetaContext) {
-    const defaultMeta = this.defaultMeta && this.defaultMeta[name];
+    const defaultMeta = this.defaultMeta[name];
 
     if (defaultMeta) {
       this.updateMeta(name, defaultMeta, ctx);
