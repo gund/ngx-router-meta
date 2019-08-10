@@ -1,5 +1,8 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {
+  BrowserModule,
+  BrowserTransferStateModule,
+} from '@angular/platform-browser';
 import { RouterMetaModule } from 'ngx-router-meta';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -8,7 +11,8 @@ import { ShowRouteComponent } from './show-route.component';
 
 @NgModule({
   imports: [
-    BrowserModule.withServerTransition({ appId: 'serverApp' }),
+    BrowserModule.withServerTransition({ appId: 'demo-ssr' }),
+    BrowserTransferStateModule,
     RouterMetaModule.forRoot(),
     AppRoutingModule,
   ],
