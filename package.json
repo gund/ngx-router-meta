@@ -1,5 +1,5 @@
 {
-  "name": "@gund/ngx-router-meta",
+  "name": "ngx-router-meta",
   "description": "Configure HTML meta tags in route configuration of Angular",
   "version": "0.0.0",
   "scripts": {
@@ -11,6 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
+    "pack": "copyfiles LICENCE dist/ngx-router-meta",
     "compile:demo-ssr:server": "webpack --config projects/demo-ssr/webpack.server.config.js --progress --colors",
     "compile:demo-ssr:server:w": "npm run compile:demo-ssr:server -- --watch",
     "serve:demo-ssr:server": "nodemon dist/demo-ssr/server",

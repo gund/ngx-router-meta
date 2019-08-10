@@ -14,7 +14,7 @@
 ## Install
 
 ```
-npm install @gund/ngx-router-meta
+npm install ngx-router-meta
 ```
 
 ## Configure
@@ -23,7 +23,7 @@ npm install @gund/ngx-router-meta
 
 ```ts
 import { NgModule } from '@angular/core';
-import { RouterMetaModule } from '@gund/ngx-router-meta';
+import { RouterMetaModule } from 'ngx-router-meta';
 
 @NgModule({
   imports: [RouterMetaModule.forRoot()],
@@ -38,7 +38,7 @@ export class AppModule {}
 ```ts
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { RoutesWithMeta } from '@gund/ngx-router-meta';
+import { RoutesWithMeta } from 'ngx-router-meta';
 
 import { ShowRouteComponent } from './show-route.component';
 
