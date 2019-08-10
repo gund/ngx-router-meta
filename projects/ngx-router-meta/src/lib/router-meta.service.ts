@@ -37,6 +37,8 @@ import {
 import {
   isDataWithMeta,
   MetaContext,
+  RouteMeta,
+  RouteMetaTemplates,
   RouterMetaConfig,
   RouterMetaInterpolation,
 } from './router-meta';
@@ -140,42 +142,84 @@ export class RouterMetaService implements OnDestroy {
   }
 
   private updateAllMeta(data: Data, ctx: ProcessedMetaContext = {}) {
+    const {
+      _templates_: defaultTemplates,
+      ...defaultAllMeta
+    } = this.defaultMeta;
+    const { title: _, ...defaultOtherMeta } = defaultAllMeta;
+
     if (!isDataWithMeta(data)) {
-      this.resetAllMeta(ctx);
+      this.resetAllMeta(ctx, defaultOtherMeta);
       return;
     }
 
     const { meta } = data;
-    const { title, ...otherMeta } = meta;
+    const { _templates_, ...allMeta } = meta;
+    const { title, ...otherMeta } = allMeta;
 
-    this.updateTitle(title, ctx);
+    const allMetaDefaulted = { ...defaultAllMeta, ...allMeta };
+    const otherMetaDefaulted = { ...defaultOtherMeta, ...otherMeta };
+    const templates = {
+      ...defaultTemplates,
+      ..._templates_,
+    } as RouteMetaTemplates;
 
-    Object.keys(otherMeta).forEach(name =>
-      this.updateMeta(name, otherMeta[name], ctx),
+    const processedMeta = this.processContext(allMetaDefaulted);
+
+    this.updateTitle(title, ctx, templates, processedMeta);
+
+    Object.keys(otherMetaDefaulted).forEach(name =>
+      this.updateMeta(
+        name,
+        otherMetaDefaulted[name],
+        ctx,
+        templates,
+        processedMeta,
+      ),
     );
 
     // Cleanup leftover meta tags
     Object.keys(this.metaTags)
-      .filter(name => name in otherMeta === false)
-      .forEach(name => this.resetMeta(name, ctx));
+      .filter(name => name in otherMetaDefaulted === false)
+      .forEach(name => this.resetMeta(name, ctx, templates, processedMeta));
   }
 
-  private resetAllMeta(ctx: ProcessedMetaContext) {
-    this.resetTitle(ctx);
-    Object.keys(this.metaTags).forEach(name => this.resetMeta(name, ctx));
+  private resetAllMeta(ctx: ProcessedMetaContext, defaultMeta?: RouteMeta) {
+    this.resetTitle(ctx, this.defaultMeta._templates_);
+
+    const metaDefaulted = { ...defaultMeta, ...this.metaTags };
+
+    Object.keys(metaDefaulted).forEach(name =>
+      this.resetMeta(name, ctx, this.defaultMeta._templates_),
+    );
   }
 
-  private updateTitle(title?: string, ctx?: ProcessedMetaContext) {
+  private updateTitle(
+    title?: string,
+    ctx?: ProcessedMetaContext,
+    templates?: RouteMetaTemplates,
+    meta?: ProcessedMetaContext,
+  ) {
     if (title) {
-      this.title.setTitle(this.templateStr(title, ctx));
+      this.title.setTitle(
+        this.templateStr(title, ctx, { name: 'title', templates, meta }),
+      );
     } else {
-      this.resetTitle(ctx);
+      this.resetTitle(ctx, templates, meta);
     }
   }
 
-  private resetTitle(ctx?: ProcessedMetaContext) {
+  private resetTitle(
+    ctx?: ProcessedMetaContext,
+    templates?: RouteMetaTemplates,
+    meta?: ProcessedMetaContext,
+  ) {
     this.title.setTitle(
-      this.templateStr(this.defaultMeta.title || this.originalTitle, ctx),
+      this.templateStr(this.defaultMeta.title || this.originalTitle, ctx, {
+        name: 'title',
+        meta,
+        templates,
+      }),
     );
   }
 
@@ -183,25 +227,36 @@ export class RouterMetaService implements OnDestroy {
     name: string,
     content?: string | MetaDefinition,
     ctx?: ProcessedMetaContext,
+    templates?: RouteMetaTemplates,
+    meta?: ProcessedMetaContext,
   ) {
     if (content) {
-      const meta: MetaDefinition =
+      const metaDef: MetaDefinition =
         typeof content === 'string' ? { name, content } : content;
 
-      meta.content = this.templateStr(meta.content, ctx);
+      metaDef.content = this.templateStr(metaDef.content, ctx, {
+        name,
+        meta,
+        templates,
+      });
 
-      this.meta.updateTag(meta);
+      this.meta.updateTag(metaDef);
       this.metaTags[name] = true;
     } else {
-      this.resetMeta(name, ctx);
+      this.resetMeta(name, ctx, templates, meta);
     }
   }
 
-  private resetMeta(name: string, ctx?: MetaContext) {
+  private resetMeta(
+    name: string,
+    ctx?: MetaContext,
+    templates?: RouteMetaTemplates,
+    meta?: ProcessedMetaContext,
+  ) {
     const defaultMeta = this.defaultMeta[name];
 
     if (defaultMeta) {
-      this.updateMeta(name, defaultMeta, ctx);
+      this.updateMeta(name, defaultMeta, ctx, templates, meta);
     } else {
       this.meta.removeTag(`name="${name}"`);
       delete this.metaTags[name];
@@ -232,14 +287,38 @@ export class RouterMetaService implements OnDestroy {
         ));
   }
 
-  private templateStr(str?: string, data?: ProcessedMetaContext) {
+  private templateStr(
+    str?: string,
+    data?: ProcessedMetaContext,
+    extras?: {
+      name?: string;
+      templates?: RouteMetaTemplates;
+      meta?: ProcessedMetaContext;
+    },
+  ) {
     if (!str || !data) {
       return str || '';
     }
 
-    return Object.keys(data).reduce(
-      (s, key) => s.replace(data[key].replace, data[key].value),
-      str,
+    let template = str;
+    let ctx = data;
+
+    if (extras) {
+      template =
+        extras.templates && extras.name
+          ? extras.templates[extras.name] || template
+          : template;
+      ctx = { ...extras.meta, ...ctx };
+
+      // Recover lost `str` value under provided `extras.name` key in context
+      if (extras.name && extras.name in ctx === false) {
+        ctx = { ...ctx, ...this.processContext({ [extras.name]: str }) };
+      }
+    }
+
+    return Object.keys(ctx).reduce(
+      (s, key) => s.replace(ctx[key].replace, ctx[key].value),
+      template,
     );
   }
 

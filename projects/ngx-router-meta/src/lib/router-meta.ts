@@ -15,8 +15,11 @@ export interface RouterMetaConfig {
 
 export interface MetaContext extends Indexable<any> {}
 
+export interface RouteMetaTemplates extends Indexable<string> {}
+
 export interface RouteMeta
   extends Indexable<string | MetaDefinition | undefined> {
+  _templates_?: RouteMetaTemplates;
   title?: string;
   description?: string;
 }
