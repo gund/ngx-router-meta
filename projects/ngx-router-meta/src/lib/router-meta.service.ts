@@ -92,7 +92,7 @@ export class RouterMetaService implements OnDestroy {
   ).pipe(map(([defaultCtx, ctx]) => ({ ...defaultCtx, ...ctx })));
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: object,
+    @Inject(PLATFORM_ID) private platformId: any,
     @Inject(ROUTE_META_CONFIG) private config: RouterMetaConfig,
     private router: Router,
     private title: Title,
