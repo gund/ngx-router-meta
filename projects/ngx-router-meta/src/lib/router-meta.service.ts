@@ -97,7 +97,7 @@ export class RouterMetaService implements OnDestroy {
     private router: Router,
     private title: Title,
     private meta: Meta,
-    @Optional() private transferState: TransferState | undefined,
+    @Optional() private transferState?: TransferState,
   ) {}
 
   /**
