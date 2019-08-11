@@ -11,7 +11,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
-    "pack": "copyfiles LICENSE dist/ngx-router-meta",
+    "pack": "copyfiles LICENSE README.md dist/ngx-router-meta",
     "compile:demo-ssr:server": "webpack --config projects/demo-ssr/webpack.server.config.js --progress --colors",
     "compile:demo-ssr:server:w": "npm run compile:demo-ssr:server -- --watch",
     "serve:demo-ssr:server": "nodemon dist/demo-ssr/server",
