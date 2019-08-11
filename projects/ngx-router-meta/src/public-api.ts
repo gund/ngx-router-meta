@@ -4,4 +4,5 @@
 
 export * from './lib/router-meta';
 export * from './lib/router-meta.service';
+export * from './lib/router-meta-context.service';
 export * from './lib/router-meta.module';

@@ -1,3 +1,4 @@
+import { InjectionToken } from '@angular/core';
 import { MetaDefinition } from '@angular/platform-browser';
 import { Data, Route, Routes } from '@angular/router';
 import { EMPTY, Observable, OperatorFunction } from 'rxjs';
@@ -8,6 +9,7 @@ import {
   startWith,
   switchAll,
   switchMap,
+  switchMapTo,
 } from 'rxjs/operators';
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
@@ -83,6 +85,11 @@ export type MergeRoutes<T extends Routes> = UnionToIntersection<
   InferArray<T>
 >[];
 
+/** @internal */
+export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
+  'ROUTE_META_CONFIG',
+);
+
 /**
  * Check if {@link Route#data} contains {@link RouteMeta} object
  */
@@ -101,9 +108,14 @@ export function unfoldContext<R>(
 ): OperatorFunction<any, R> {
   return o$ =>
     o$.pipe(
-      switchMap(() => ctx$$.pipe(switchAll()).pipe(catchError(() => EMPTY))),
-      map(ctx => mapFn(ctx)),
-      scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
-      startWith({} as R),
+      switchMapTo(
+        ctx$$.pipe(
+          switchAll(),
+          catchError(() => EMPTY),
+          map(ctx => mapFn(ctx)),
+          scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
+          startWith({} as R),
+        ),
+      ),
     );
 }

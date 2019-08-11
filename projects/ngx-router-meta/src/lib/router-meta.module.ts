@@ -5,8 +5,8 @@ import {
   SkipSelf,
 } from '@angular/core';
 
-import { RouterMetaConfig } from './router-meta';
-import { ROUTE_META_CONFIG, RouterMetaService } from './router-meta.service';
+import { ROUTE_META_CONFIG, RouterMetaConfig } from './router-meta';
+import { RouterMetaService } from './router-meta.service';
 
 @NgModule({})
 export class RouterMetaModule {

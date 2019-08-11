@@ -2,7 +2,6 @@ import { isPlatformServer } from '@angular/common';
 import {
   Inject,
   Injectable,
-  InjectionToken,
   OnDestroy,
   Optional,
   PLATFORM_ID,
@@ -15,50 +14,35 @@ import {
   TransferState,
 } from '@angular/platform-browser';
 import { ActivatedRoute, Data, Router } from '@angular/router';
-import { combineLatest, isObservable, Observable, of, Subject } from 'rxjs';
+import { combineLatest, Subject } from 'rxjs';
 import { filter, map, switchMap, takeUntil } from 'rxjs/operators';
 
 import {
   isDataWithMeta,
   MetaContext,
+  ROUTE_META_CONFIG,
   RouteMeta,
   RouteMetaTemplates,
   RouterMetaConfig,
-  RouterMetaInterpolation,
-  unfoldContext,
 } from './router-meta';
+import {
+  ProcessedMetaContext,
+  RouterMetaContextService,
+} from './router-meta-context.service';
 import { Indexable } from './types';
-import { escapeRegExp, isNavigationEndEvent } from './util';
-
-interface MetaInfo {
-  replace: RegExp;
-  value: any;
-}
-
-interface ProcessedMetaContext extends Indexable<MetaInfo> {}
-
-/** @internal */
-export const ROUTE_META_CONFIG = new InjectionToken<RouterMetaConfig>(
-  'ROUTE_META_CONFIG',
-);
+import { isNavigationEndEvent } from './util';
 
 const TITLE_STATE = makeStateKey<string>('RouterMetaTitle');
 
+/**
+ * Service responsible for updating meta tags based on router configuration
+ *
+ * To provide context - use {@link RouterMetaContextService}
+ */
 @Injectable({ providedIn: 'root' })
 export class RouterMetaService implements OnDestroy {
-  private static interpolation: RouterMetaInterpolation = {
-    start: '{',
-    end: '}',
-  };
-
   private initialized = false;
   private metaTags: Indexable<boolean> = {};
-  private ctxNameCache: Indexable<RegExp> = {};
-
-  private interpolation =
-    this.config.interpolation || RouterMetaService.interpolation;
-  private interpolationStart = escapeRegExp(this.interpolation.start);
-  private interpolationEnd = escapeRegExp(this.interpolation.end);
 
   private defaultMeta = this.config.defaultMeta || {};
 
@@ -79,49 +63,15 @@ export class RouterMetaService implements OnDestroy {
     switchMap(route => route.data),
   );
 
-  private metaDefaultContext$$ = new Subject<Observable<MetaContext>>();
-  private metaContext$$ = new Subject<Observable<MetaContext>>();
-
-  private metaDefaultContext$: Observable<ProcessedMetaContext> = of(null).pipe(
-    unfoldContext(this.metaDefaultContext$$, ctx => this.processContext(ctx)),
-  );
-  private metaContext$: Observable<ProcessedMetaContext> = this.navigationEnd$ // Start fresh after every navigation
-    .pipe(unfoldContext(this.metaContext$$, ctx => this.processContext(ctx)));
-
-  private context$ = combineLatest(
-    this.metaDefaultContext$,
-    this.metaContext$,
-  ).pipe(map(([defaultCtx, ctx]) => ({ ...defaultCtx, ...ctx })));
-
   constructor(
     @Inject(PLATFORM_ID) private platformId: any,
     @Inject(ROUTE_META_CONFIG) private config: RouterMetaConfig,
     private router: Router,
     private title: Title,
     private meta: Meta,
+    private contextService: RouterMetaContextService,
     @Optional() private transferState?: TransferState,
   ) {}
-
-  /**
-   * Provided context will be available between router navigations
-   *
-   * Multiple contexts will be merged together
-   */
-  provideDefaultContext(ctx: MetaContext | Observable<MetaContext>) {
-    this.metaDefaultContext$$.next(isObservable(ctx) ? ctx : of(ctx));
-  }
-
-  /**
-   * Provided context will be available ONLY until next router navigation
-   *
-   * Multiple contexts will be merged together
-   *
-   * If you want to persist context between navigations -
-   * use {@link RouterMetaService#provideDefaultContext()}
-   */
-  provideContext(ctx: MetaContext | Observable<MetaContext>) {
-    this.metaContext$$.next(isObservable(ctx) ? ctx : of(ctx));
-  }
 
   /**
    * Returns original title of index page.
@@ -149,7 +99,7 @@ export class RouterMetaService implements OnDestroy {
       this.transferState.set(TITLE_STATE, this.originalTitle);
     }
 
-    combineLatest(this.routeData$, this.context$)
+    combineLatest(this.routeData$, this.contextService.getContext())
       .pipe(takeUntil(this.destroyed$))
       .subscribe(([data, ctx]) => this.updateAllMeta(data, ctx));
   }
@@ -177,7 +127,7 @@ export class RouterMetaService implements OnDestroy {
       ..._templates_,
     } as RouteMetaTemplates;
 
-    const processedMeta = this.processContext(allMetaDefaulted);
+    const processedMeta = this.contextService._processContext(allMetaDefaulted);
 
     this.updateTitle(title, ctx, templates, processedMeta);
 
@@ -200,7 +150,7 @@ export class RouterMetaService implements OnDestroy {
   private resetAllMeta(ctx: ProcessedMetaContext, defaultMeta: RouteMeta) {
     const { title, ...defaultOtherMeta } = defaultMeta;
     const metaDefaulted = { ...defaultOtherMeta, ...this.metaTags };
-    const meta = this.processContext(defaultMeta);
+    const meta = this.contextService._processContext(defaultMeta);
 
     this.resetTitle(ctx, this.defaultMeta._templates_, meta);
 
@@ -217,7 +167,11 @@ export class RouterMetaService implements OnDestroy {
   ) {
     if (title) {
       this.title.setTitle(
-        this.templateStr(title, ctx, { name: 'title', templates, meta }),
+        this.contextService._templateStr(title, ctx, {
+          name: 'title',
+          templates,
+          meta,
+        }),
       );
     } else {
       this.resetTitle(ctx, templates, meta);
@@ -230,11 +184,15 @@ export class RouterMetaService implements OnDestroy {
     meta?: ProcessedMetaContext,
   ) {
     this.title.setTitle(
-      this.templateStr(this.defaultMeta.title || this.originalTitle, ctx, {
-        name: 'title',
-        meta,
-        templates,
-      }),
+      this.contextService._templateStr(
+        this.defaultMeta.title || this.originalTitle,
+        ctx,
+        {
+          name: 'title',
+          meta,
+          templates,
+        },
+      ),
     );
   }
 
@@ -249,7 +207,7 @@ export class RouterMetaService implements OnDestroy {
       const metaDef: MetaDefinition =
         typeof content === 'string' ? { name, content } : content;
 
-      metaDef.content = this.templateStr(metaDef.content, ctx, {
+      metaDef.content = this.contextService._templateStr(metaDef.content, ctx, {
         name,
         meta,
         templates,
@@ -276,65 +234,6 @@ export class RouterMetaService implements OnDestroy {
       this.meta.removeTag(`name="${name}"`);
       delete this.metaTags[name];
     }
-  }
-
-  private processContext(ctx: MetaContext): ProcessedMetaContext {
-    return Object.keys(ctx).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: {
-          replace: this.getContextReplace(key),
-          value: ctx[key],
-        },
-      }),
-      {} as ProcessedMetaContext,
-    );
-  }
-
-  private getContextReplace(name: string) {
-    return name in this.ctxNameCache
-      ? this.ctxNameCache[name]
-      : (this.ctxNameCache[name] = new RegExp(
-          `${this.interpolationStart}${escapeRegExp(name)}${
-            this.interpolationEnd
-          }`,
-          'g',
-        ));
-  }
-
-  private templateStr(
-    str?: string,
-    data?: ProcessedMetaContext,
-    extras?: {
-      name?: string;
-      templates?: RouteMetaTemplates;
-      meta?: ProcessedMetaContext;
-    },
-  ) {
-    if (!str || !data) {
-      return str || '';
-    }
-
-    let template = str;
-    let ctx = data;
-
-    if (extras) {
-      template =
-        extras.templates && extras.name
-          ? extras.templates[extras.name] || template
-          : template;
-      ctx = { ...extras.meta, ...ctx };
-
-      // Recover lost `str` value under provided `extras.name` key in context
-      if (extras.name && extras.name in ctx === false) {
-        ctx = { ...ctx, ...this.processContext({ [extras.name]: str }) };
-      }
-    }
-
-    return Object.keys(ctx).reduce(
-      (s, key) => s.replace(ctx[key].replace, ctx[key].value),
-      template,
-    );
   }
 
   private getLastRoute(route: ActivatedRoute) {
