@@ -12,20 +12,37 @@ import {
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
 
+/**
+ * Specifies identifiers of interpolations in meta strings
+ */
 export interface RouterMetaInterpolation {
   start: string;
   end: string;
 }
 
+/**
+ * Configuration of {@link RouterMetaModule}
+ */
 export interface RouterMetaConfig {
   defaultMeta?: RouteMeta;
   interpolation?: RouterMetaInterpolation;
 }
 
+/**
+ * Context for rendering meta tags
+ */
 export interface MetaContext extends Indexable<any> {}
 
+/**
+ * Template strings for rendering meta tags
+ *
+ * Every key must match a tag name it's applied to
+ */
 export interface RouteMetaTemplates extends Indexable<string> {}
 
+/**
+ * Meta tags of the {@link Route} with templates
+ */
 export interface RouteMeta
   extends Indexable<string | MetaDefinition | undefined> {
   _templates_?: RouteMetaTemplates;
@@ -33,14 +50,23 @@ export interface RouteMeta
   description?: string;
 }
 
+/**
+ * Describes {@link Route#data} with {@link RouteMeta}
+ */
 export interface DataWithMeta extends Data {
   meta?: RouteMeta;
 }
 
+/**
+ * Describes {@link Route} with {@link DataWithMeta}
+ */
 export interface RouteWithMeta extends Route {
   data?: DataWithMeta;
 }
 
+/**
+ * Describes {@link Routes} as array of {@link RouteWithMeta}
+ */
 export type RoutesWithMeta = RouteWithMeta[];
 
 /**
@@ -57,6 +83,9 @@ export type MergeRoutes<T extends Routes> = UnionToIntersection<
   InferArray<T>
 >[];
 
+/**
+ * Check if {@link Route#data} contains {@link RouteMeta} object
+ */
 export function isDataWithMeta(data: Data): data is Required<DataWithMeta> {
   return !!data.meta;
 }

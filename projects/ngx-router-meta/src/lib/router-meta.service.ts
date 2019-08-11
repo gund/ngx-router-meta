@@ -81,11 +81,13 @@ export class RouterMetaService implements OnDestroy {
 
   private metaDefaultContext$$ = new Subject<Observable<MetaContext>>();
   private metaContext$$ = new Subject<Observable<MetaContext>>();
+
   private metaDefaultContext$: Observable<ProcessedMetaContext> = of(null).pipe(
     unfoldContext(this.metaDefaultContext$$, ctx => this.processContext(ctx)),
   );
   private metaContext$: Observable<ProcessedMetaContext> = this.navigationEnd$ // Start fresh after every navigation
     .pipe(unfoldContext(this.metaContext$$, ctx => this.processContext(ctx)));
+
   private context$ = combineLatest(
     this.metaDefaultContext$,
     this.metaContext$,
