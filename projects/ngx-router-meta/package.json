@@ -2,6 +2,22 @@
   "name": "ngx-router-meta",
   "description": "Configure HTML meta tags in route configuration of Angular",
   "version": "0.0.1-beta.3",
+  "author": "Alex Malkevich <malkevich.alex@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gund/ngx-router-meta"
+  },
+  "license": "MIT",
+  "keywords": [
+    "description",
+    "title",
+    "meta-tags",
+    "router",
+    "configuration",
+    "seo-optimization",
+    "ssr",
+    "angular"
+  ],
   "peerDependencies": {
     "@angular/common": "^8.0.0",
     "@angular/core": "^8.0.0",
