@@ -14,12 +14,14 @@ import { ShowRouteComponent } from './show-route.component';
     BrowserModule.withServerTransition({ appId: 'demo-ssr' }),
     BrowserTransferStateModule,
     RouterMetaModule.forRoot({
-      defaultMeta: {
-        _templates_: {
-          title: '{title} | {appName}',
-          description: 'Desc: {description}',
+      config: {
+        defaultMeta: {
+          _templates_: {
+            title: '{title} | {appName}',
+            description: 'Desc: {description}',
+          },
+          description: 'Nothing to say by default...',
         },
-        description: 'Nothing to say by default...',
       },
     }),
     AppRoutingModule,

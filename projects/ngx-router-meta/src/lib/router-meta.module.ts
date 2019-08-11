@@ -7,15 +7,28 @@ import {
 
 import { ROUTE_META_CONFIG, RouterMetaConfig } from './router-meta';
 import { RouterMetaService } from './router-meta.service';
+import { TypedProvider, TypedProviderI } from './typed-provider';
+
+export type ConfigProvider = TypedProvider<typeof ROUTE_META_CONFIG>;
+
+export interface RouterMetaModuleConfig<C extends ConfigProvider> {
+  config?: RouterMetaConfig;
+  configProvider?: C & TypedProviderI<typeof ROUTE_META_CONFIG, C>;
+}
 
 @NgModule({})
 export class RouterMetaModule {
-  static forRoot(
-    config: RouterMetaConfig = {},
+  static forRoot<C extends ConfigProvider>(
+    config: RouterMetaModuleConfig<C> = {} as any,
   ): ModuleWithProviders<RouterMetaModule> {
     return {
       ngModule: RouterMetaModule,
-      providers: [{ provide: ROUTE_META_CONFIG, useValue: config }],
+      providers: [
+        config.configProvider || {
+          provide: ROUTE_META_CONFIG,
+          useValue: config.config,
+        },
+      ],
     };
   }
 
