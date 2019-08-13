@@ -29,6 +29,10 @@ const routes: RoutesWithMeta = [
     component: ShowRouteComponent,
     data: { meta: { _templates_: { title: 'Custom format | {title}' } } },
   },
+  {
+    path: 'lazy',
+    loadChildren: () => import('./lazy/lazy.module').then(m => m.LazyModule),
+  },
 ];
 
 @NgModule({

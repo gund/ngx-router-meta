@@ -17,6 +17,9 @@ import { RouterMetaContextService } from 'ngx-router-meta';
       <li>
         <h2><a routerLink="/route3">Route 3</a></h2>
       </li>
+      <li>
+        <h2><a routerLink="/lazy">Lazy route</a></h2>
+      </li>
     </ul>
     <button (click)="clearCtx()">Clear context</button>
     <button (click)="toggleDefaultCtx()">
