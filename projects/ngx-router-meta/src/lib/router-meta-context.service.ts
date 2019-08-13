@@ -68,7 +68,10 @@ export class RouterMetaContextService {
   private metaContext$: Observable<ProcessedMetaContext> = merge(
     this.clearContext$,
     this.navigationEnd$, // Start fresh after every navigation
-  ).pipe(unfoldContext(this.metaContext$$, ctx => this._processContext(ctx)));
+  ).pipe(
+    startWith(null),
+    unfoldContext(this.metaContext$$, ctx => this._processContext(ctx)),
+  );
 
   private context$ = combineLatest(
     this.metaDefaultContext$,
@@ -149,18 +152,16 @@ export class RouterMetaContextService {
         extras.templates && extras.name
           ? extras.templates[extras.name] || template
           : template;
-      ctx = { ...extras.meta, ...ctx };
+      ctx = { ...this.prepareContext(extras.meta, ctx), ...ctx };
 
       // Recover lost `str` value under provided `extras.name` key in context
       if (extras.name && extras.name in ctx === false) {
-        ctx = { ...ctx, ...this._processContext({ [extras.name]: str }) };
+        const nameCtx = this._processContext({ [extras.name]: str });
+        ctx = { ...ctx, ...this.prepareContext(nameCtx, ctx) };
       }
     }
 
-    return Object.keys(ctx).reduce(
-      (s, key) => s.replace(ctx[key].replace, ctx[key].value),
-      template,
-    );
+    return this.templateReplace(template, ctx);
   }
 
   /** @internal */
@@ -174,6 +175,33 @@ export class RouterMetaContextService {
         },
       }),
       {} as ProcessedMetaContext,
+    );
+  }
+
+  private prepareContext(
+    ctx?: ProcessedMetaContext,
+    data?: ProcessedMetaContext,
+  ): ProcessedMetaContext | undefined {
+    if (!ctx || !data) {
+      return ctx;
+    }
+
+    return Object.keys(ctx).reduce(
+      (c, key) => {
+        c[key] = {
+          ...ctx[key],
+          value: this.templateReplace(ctx[key].value, data),
+        };
+        return c;
+      },
+      {} as ProcessedMetaContext,
+    );
+  }
+
+  private templateReplace(tpl: string, ctx: ProcessedMetaContext) {
+    return Object.keys(ctx).reduce(
+      (s, key) => s.replace(ctx[key].replace, ctx[key].value),
+      tpl,
     );
   }
 
