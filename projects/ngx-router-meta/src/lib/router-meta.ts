@@ -49,7 +49,7 @@ export interface RouteMeta
   extends Indexable<string | MetaDefinition | undefined> {
   _templates_?: RouteMetaTemplates;
   title?: string;
-  description?: string;
+  description?: string | MetaDefinition;
 }
 
 /**
