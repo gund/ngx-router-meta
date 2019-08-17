@@ -1,9 +1,9 @@
 import { Provider } from '@angular/core';
+import { createModule } from '@orchestrator/ngx-testing';
 
 import { ROUTE_META_CONFIG } from './router-meta';
 import { RouterMetaModule } from './router-meta.module';
 import { RouterMetaService } from './router-meta.service';
-import { createModule } from './test-util';
 
 describe('RouterMetaModule', () => {
   it('should exist', () => {
