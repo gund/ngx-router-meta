@@ -1,0 +1,38 @@
+sudo: required
+dist: trusty
+language: node_js
+
+notifications:
+  email: false
+
+node_js: lts/*
+
+cache:
+  npm: true
+
+branches:
+  only:
+    - master
+
+stages:
+  - test
+  - name: deploy
+    if: branch = master and type != pull_request
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - npm run build
+        - npm run test:ci
+        - npm run test:report
+    - stage: release
+      node_js: lts/*
+      script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script:
+          - npm run build
+          - npm run pack
+          - npm run semantic-release

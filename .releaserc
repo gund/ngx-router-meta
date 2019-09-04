@@ -1,0 +1,33 @@
+{
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md",
+        "changelogTitle": "# NgxRouterMeta - Changelog"
+      }
+    ],
+    [
+      "@semantic-release/npm",
+      {
+        "pkgRoot": "dist/ngx-router-meta",
+        "tarballDir": "dist"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "docs(changelog): add release notes for ${nextRelease.version} [skip ci]"
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": "dist/*.tgz"
+      }
+    ]
+  ]
+}
