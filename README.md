@@ -1,5 +1,14 @@
 # NgxRouterMeta
 
+[![Build Status](https://travis-ci.org/gund/ngx-router-meta.svg?branch=master)](https://travis-ci.org/gund/ngx-router-meta)
+[![codecov](https://codecov.io/gh/gund/ngx-router-meta/branch/master/graph/badge.svg)](https://codecov.io/gh/gund/ngx-router-meta)
+[![Maintainability](https://api.codeclimate.com/v1/badges/75faccce723e7021b790/maintainability)](https://codeclimate.com/github/gund/ngx-router-meta/maintainability)
+[![Npm](https://img.shields.io/npm/v/ngx-router-meta.svg)](https://www.npmjs.com/package/ngx-router-meta)
+[![Npm Downloads](https://img.shields.io/npm/dt/ngx-router-meta.svg)](https://www.npmjs.com/package/ngx-router-meta)
+![Size](https://badgen.net/bundlephobia/minzip/ngx-router-meta)
+[![Licence](https://img.shields.io/npm/l/ngx-router-meta.svg?maxAge=2592000)](https://github.com/gund/ngx-router-meta/blob/master/LICENSE)
+[![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+
 > Configure HTML meta tags in route configuration of Angular for SSR
 
 ## Features
