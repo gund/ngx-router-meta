@@ -1,0 +1,15 @@
+version: '2'
+plugins:
+  tslint:
+    enabled: true
+    config: tslint.json
+  nodesecurity:
+    enabled: true
+  fixme:
+    enabled: true
+  editorconfig:
+    enabled: true
+exclude_patterns:
+  - '**.*'
+  - '!projects/ngx-router-meta/src/**/*.ts'
+  - 'projects/ngx-router-meta/src/**/*.spec.ts'
