@@ -19,6 +19,7 @@
     "e2e": "ng e2e",
     "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
     "pack": "copyfiles LICENSE README.md dist/ngx-router-meta",
+    "presemantic-release": "run-s build pack",
     "semantic-release": "semantic-release",
     "compile:demo-ssr:server": "webpack --config projects/demo-ssr/webpack.server.config.js --progress --colors",
     "compile:demo-ssr:server:w": "npm run compile:demo-ssr:server -- --watch",
