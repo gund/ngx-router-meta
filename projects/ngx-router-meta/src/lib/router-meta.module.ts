@@ -18,6 +18,15 @@ export interface RouterMetaModuleConfig {
 
 @NgModule({})
 export class RouterMetaModule {
+  constructor(
+    @Optional() @SkipSelf() parentModule: RouterMetaModule,
+    routerMetaService: RouterMetaService,
+  ) {
+    if (!parentModule) {
+      routerMetaService._setup();
+    }
+  }
+
   static forRoot(
     config: RouterMetaModuleConfig = {} as any,
   ): ModuleWithProviders<RouterMetaModule> {
@@ -30,14 +39,5 @@ export class RouterMetaModule {
         },
       ],
     };
-  }
-
-  constructor(
-    @Optional() @SkipSelf() parentModule: RouterMetaModule,
-    routerMetaService: RouterMetaService,
-  ) {
-    if (!parentModule) {
-      routerMetaService._setup();
-    }
   }
 }

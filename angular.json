@@ -19,6 +19,15 @@
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {}
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/ngx-router-meta/**/*.ts",
+              "projects/ngx-router-meta/**/*.html"
+            ]
+          }
         }
       }
     },
@@ -41,7 +50,9 @@
               "projects/demo-ssr/src/favicon.ico",
               "projects/demo-ssr/src/assets"
             ],
-            "styles": ["projects/demo-ssr/src/styles.css"],
+            "styles": [
+              "projects/demo-ssr/src/styles.css"
+            ],
             "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -169,5 +180,10 @@
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "@angular-eslint/schematics"
+    ]
   }
 }
