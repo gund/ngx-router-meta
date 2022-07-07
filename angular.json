@@ -10,7 +10,7 @@
       "prefix": "nrm",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "projects/ngx-router-meta/tsconfig.lib.json",
             "project": "projects/ngx-router-meta/ng-package.json"
@@ -19,16 +19,6 @@
         "test": {
           "builder": "@angular-builders/jest:run",
           "options": {}
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/ngx-router-meta/tsconfig.lib.json",
-              "projects/ngx-router-meta/tsconfig.spec.json"
-            ],
-            "exclude": ["**/node_modules/**"]
-          }
         }
       }
     },
@@ -47,20 +37,30 @@
             "main": "projects/demo-ssr/src/main.ts",
             "polyfills": "projects/demo-ssr/src/polyfills.ts",
             "tsConfig": "projects/demo-ssr/tsconfig.app.json",
-            "aot": false,
             "assets": [
               "projects/demo-ssr/src/favicon.ico",
               "projects/demo-ssr/src/assets"
             ],
             "styles": ["projects/demo-ssr/src/styles.css"],
-            "scripts": []
+            "scripts": [],
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "ssr": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "outputHashing": "all",
               "namedChunks": false,
-              "aot": true,
               "buildOptimizer": true
             },
             "production": {
@@ -73,9 +73,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
-              "aot": true,
               "extractLicenses": true,
               "vendorChunk": false,
               "buildOptimizer": true,
@@ -92,7 +90,8 @@
                 }
               ]
             }
-          }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -115,11 +114,12 @@
           "builder": "@angular-devkit/build-angular:server",
           "options": {
             "outputPath": "dist/demo-ssr/server",
-            "main": "projects/demo-ssr/src/main.server.ts",
+            "main": "projects/demo-ssr/server.ts",
             "tsConfig": "projects/demo-ssr/tsconfig.server.json",
             "optimization": {
               "scripts": false
-            }
+            },
+            "sourceMap": true
           },
           "configurations": {
             "production": {
@@ -130,15 +130,44 @@
                 }
               ],
               "sourceMap": false,
-              "optimization": {
-                "scripts": false,
-                "styles": true
-              }
+              "optimization": true
             }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-ssr": {
+          "builder": "@nguniversal/builders:ssr-dev-server",
+          "options": {
+            "browserTarget": "demo-ssr:build",
+            "serverTarget": "demo-ssr:server"
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "demo-ssr:build:production",
+              "serverTarget": "demo-ssr:server:production"
+            }
+          }
+        },
+        "prerender": {
+          "builder": "@nguniversal/builders:prerender",
+          "options": {
+            "browserTarget": "demo-ssr:build:production",
+            "serverTarget": "demo-ssr:server:production",
+            "routes": [
+              "/",
+              "/route1",
+              "/route2",
+              "/route3",
+              "/lazy",
+              "/lazy/child1",
+              "/lazy/child2"
+            ]
+          },
+          "configurations": {
+            "production": {}
           }
         }
       }
     }
-  },
-  "defaultProject": "ngx-router-meta"
+  }
 }
