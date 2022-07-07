@@ -1,16 +1,17 @@
 import { InjectionToken } from '@angular/core';
 import { MetaDefinition } from '@angular/platform-browser';
 import { Data, Route, Routes } from '@angular/router';
-import { EMPTY, Observable, OperatorFunction } from 'rxjs';
 import {
   catchError,
+  EMPTY,
   map,
+  Observable,
+  OperatorFunction,
   scan,
   startWith,
   switchAll,
-  switchMap,
   switchMapTo,
-} from 'rxjs/operators';
+} from 'rxjs';
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
 

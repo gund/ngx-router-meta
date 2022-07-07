@@ -2,8 +2,7 @@ import { Component, NgZone } from '@angular/core';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { NavigationExtras, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { from, map, Observable } from 'rxjs';
 
 import { ROUTE_META_CONFIG } from './router-meta';
 import { RouterMetaContextService } from './router-meta-context.service';
@@ -65,12 +64,12 @@ describe('Service: RouterMetaContext', () => {
   });
 
   describe('provideContext() method', () => {
-    let processContext: jasmine.Spy;
+    let processContext: jest.SpyInstance;
 
     beforeEach(() => {
-      processContext = spyOn(getService(), '_processContext').and.callFake(
-        ctx => ctx,
-      );
+      processContext = jest
+        .spyOn(getService(), '_processContext')
+        .mockImplementation(ctx => ctx);
     });
 
     it('should use `this._processContext()` on context', () => {
@@ -80,7 +79,7 @@ describe('Service: RouterMetaContext', () => {
         .getContext()
         .subscribe(callback);
 
-      processContext.and.returnValue({ mocked: true });
+      processContext.mockReturnValue({ mocked: true });
 
       getService().provideContext({ ctx: true });
 
@@ -154,12 +153,12 @@ describe('Service: RouterMetaContext', () => {
   });
 
   describe('provideDefaultContext() method', () => {
-    let processContext: jasmine.Spy;
+    let processContext: jest.SpyInstance;
 
     beforeEach(() => {
-      processContext = spyOn(getService(), '_processContext').and.callFake(
-        ctx => ctx,
-      );
+      processContext = jest
+        .spyOn(getService(), '_processContext')
+        .mockImplementation(ctx => ctx);
     });
 
     it('should use `this._processContext()` on context', () => {
@@ -169,7 +168,7 @@ describe('Service: RouterMetaContext', () => {
         .getContext()
         .subscribe(callback);
 
-      processContext.and.returnValue({ mocked: true });
+      processContext.mockReturnValue({ mocked: true });
 
       getService().provideDefaultContext({ default: true });
 
@@ -244,7 +243,9 @@ describe('Service: RouterMetaContext', () => {
 
   describe('clearContext() method', () => {
     beforeEach(() => {
-      spyOn(getService(), '_processContext').and.callFake(ctx => ctx);
+      jest
+        .spyOn(getService(), '_processContext')
+        .mockImplementation(ctx => ctx);
     });
 
     it('should clear context but keep default context', () => {
@@ -272,7 +273,9 @@ describe('Service: RouterMetaContext', () => {
 
   describe('clearContext() method', () => {
     beforeEach(() => {
-      spyOn(getService(), '_processContext').and.callFake(ctx => ctx);
+      jest
+        .spyOn(getService(), '_processContext')
+        .mockImplementation(ctx => ctx);
     });
 
     it('should default context but keep normal context', () => {

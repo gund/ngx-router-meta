@@ -14,16 +14,22 @@ import {
   TransferState,
 } from '@angular/platform-browser';
 import { ActivatedRoute, Data, Router } from '@angular/router';
-import { combineLatest, Subject } from 'rxjs';
-import { filter, map, switchMap, takeUntil } from 'rxjs/operators';
+import {
+  combineLatest,
+  filter,
+  map,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
 
 import {
   isDataWithMeta,
   MetaContext,
-  ROUTE_META_CONFIG,
   RouteMeta,
   RouteMetaTemplates,
   RouterMetaConfig,
+  ROUTE_META_CONFIG,
 } from './router-meta';
 import {
   ProcessedMetaContext,

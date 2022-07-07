@@ -3,8 +3,7 @@ import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterMetaContextService } from 'ngx-router-meta';
-import { merge, of, timer } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, merge, of, timer } from 'rxjs';
 
 @Component({
   selector: 'app-show-route',

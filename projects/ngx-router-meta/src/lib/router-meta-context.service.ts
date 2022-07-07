@@ -2,20 +2,23 @@ import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   combineLatest,
+  filter,
   isObservable,
+  map,
   merge,
   Observable,
   of,
+  shareReplay,
+  startWith,
   Subject,
 } from 'rxjs';
-import { filter, map, shareReplay, startWith } from 'rxjs/operators';
 
 import {
   MetaContext,
-  ROUTE_META_CONFIG,
   RouteMetaTemplates,
   RouterMetaConfig,
   RouterMetaInterpolation,
+  ROUTE_META_CONFIG,
   unfoldContext,
 } from './router-meta';
 import { Indexable } from './types';
