@@ -2,24 +2,33 @@ import {
   ModuleWithProviders,
   NgModule,
   Optional,
+  Provider,
   SkipSelf,
 } from '@angular/core';
 
-import { ROUTE_META_CONFIG, RouterMetaConfig } from './router-meta';
+import { RouterMetaConfig, ROUTE_META_CONFIG } from './router-meta';
 import { RouterMetaService } from './router-meta.service';
-import { TypedProvider, TypedProviderI } from './typed-provider';
 
-export type ConfigProvider = TypedProvider<typeof ROUTE_META_CONFIG>;
+export type ConfigProvider = Provider;
 
-export interface RouterMetaModuleConfig<C extends ConfigProvider> {
+export interface RouterMetaModuleConfig {
   config?: RouterMetaConfig;
-  configProvider?: C & TypedProviderI<typeof ROUTE_META_CONFIG, C>;
+  configProvider?: ConfigProvider;
 }
 
 @NgModule({})
 export class RouterMetaModule {
-  static forRoot<C extends ConfigProvider>(
-    config: RouterMetaModuleConfig<C> = {} as any,
+  constructor(
+    @Optional() @SkipSelf() parentModule: RouterMetaModule,
+    routerMetaService: RouterMetaService,
+  ) {
+    if (!parentModule) {
+      routerMetaService._setup();
+    }
+  }
+
+  static forRoot(
+    config: RouterMetaModuleConfig = {} as any,
   ): ModuleWithProviders<RouterMetaModule> {
     return {
       ngModule: RouterMetaModule,
@@ -30,14 +39,5 @@ export class RouterMetaModule {
         },
       ],
     };
-  }
-
-  constructor(
-    @Optional() @SkipSelf() parentModule: RouterMetaModule,
-    routerMetaService: RouterMetaService,
-  ) {
-    if (!parentModule) {
-      routerMetaService._setup();
-    }
   }
 }

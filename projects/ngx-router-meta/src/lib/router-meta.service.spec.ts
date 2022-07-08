@@ -30,10 +30,10 @@ class MetaMock {
 
 class RouterMetaContextServiceMock {
   getContext = jest.fn().mockReturnValue(of({}));
-  // tslint:disable-next-line: variable-name
-  _processContext = jest.fn().mockImplementation(ctx => ctx);
-  // tslint:disable-next-line: variable-name
-  _templateStr = jest.fn().mockImplementation(str => `tpl_${str}`);
+  // eslint-disable-next-line @typescript-eslint/naming-convention,no-underscore-dangle,id-blacklist,id-match
+  _processContext = jest.fn().mockImplementation((ctx) => ctx);
+  // eslint-disable-next-line @typescript-eslint/naming-convention, no-underscore-dangle, id-blacklist, id-match
+  _templateStr = jest.fn().mockImplementation((str) => `tpl_${str}`);
 }
 
 describe('RouterMetaService', () => {

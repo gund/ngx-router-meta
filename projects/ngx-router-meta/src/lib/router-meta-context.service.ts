@@ -2,20 +2,23 @@ import { Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   combineLatest,
+  filter,
   isObservable,
+  map,
   merge,
   Observable,
   of,
+  shareReplay,
+  startWith,
   Subject,
 } from 'rxjs';
-import { filter, map, shareReplay, startWith } from 'rxjs/operators';
 
 import {
   MetaContext,
-  ROUTE_META_CONFIG,
   RouteMetaTemplates,
   RouterMetaConfig,
   RouterMetaInterpolation,
+  ROUTE_META_CONFIG,
   unfoldContext,
 } from './router-meta';
 import { Indexable } from './types';
@@ -58,19 +61,20 @@ export class RouterMetaContextService {
   private clearDefaultContext$ = new Subject<void>();
   private clearContext$ = new Subject<void>();
 
-  private metaDefaultContext$: Observable<
-    ProcessedMetaContext
-  > = this.clearDefaultContext$.pipe(
-    startWith(null),
-    unfoldContext(this.metaDefaultContext$$, ctx => this._processContext(ctx)),
-  );
+  private metaDefaultContext$: Observable<ProcessedMetaContext> =
+    this.clearDefaultContext$.pipe(
+      startWith(null),
+      unfoldContext(this.metaDefaultContext$$, (ctx) =>
+        this._processContext(ctx),
+      ),
+    );
 
   private metaContext$: Observable<ProcessedMetaContext> = merge(
     this.clearContext$,
     this.navigationEnd$, // Start fresh after every navigation
   ).pipe(
     startWith(null),
-    unfoldContext(this.metaContext$$, ctx => this._processContext(ctx)),
+    unfoldContext(this.metaContext$$, (ctx) => this._processContext(ctx)),
   );
 
   private context$ = combineLatest(
@@ -186,16 +190,13 @@ export class RouterMetaContextService {
       return ctx;
     }
 
-    return Object.keys(ctx).reduce(
-      (c, key) => {
-        c[key] = {
-          ...ctx[key],
-          value: this.templateReplace(ctx[key].value, data),
-        };
-        return c;
-      },
-      {} as ProcessedMetaContext,
-    );
+    return Object.keys(ctx).reduce((c, key) => {
+      c[key] = {
+        ...ctx[key],
+        value: this.templateReplace(ctx[key].value, data),
+      };
+      return c;
+    }, {} as ProcessedMetaContext);
   }
 
   private templateReplace(tpl: string, ctx: ProcessedMetaContext) {

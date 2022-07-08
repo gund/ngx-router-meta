@@ -31,7 +31,7 @@ const routes: RoutesWithMeta = [
   },
   {
     path: 'lazy',
-    loadChildren: () => import('./lazy/lazy.module').then(m => m.LazyModule),
+    loadChildren: () => import('./lazy/lazy.module').then((m) => m.LazyModule),
   },
 ];
 

@@ -1,16 +1,17 @@
 import { InjectionToken } from '@angular/core';
 import { MetaDefinition } from '@angular/platform-browser';
 import { Data, Route, Routes } from '@angular/router';
-import { EMPTY, Observable, OperatorFunction } from 'rxjs';
 import {
   catchError,
+  EMPTY,
   map,
+  Observable,
+  OperatorFunction,
   scan,
   startWith,
   switchAll,
-  switchMap,
   switchMapTo,
-} from 'rxjs/operators';
+} from 'rxjs';
 
 import { Indexable, InferArray, UnionToIntersection } from './types';
 
@@ -106,13 +107,13 @@ export function unfoldContext<R>(
   ctx$$: Observable<Observable<MetaContext>>,
   mapFn: (ctx: MetaContext) => R,
 ): OperatorFunction<any, R> {
-  return o$ =>
+  return (o$) =>
     o$.pipe(
       switchMapTo(
         ctx$$.pipe(
           switchAll(),
           catchError(() => EMPTY),
-          map(ctx => mapFn(ctx)),
+          map((ctx) => mapFn(ctx)),
           scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
           startWith({} as R),
         ),
