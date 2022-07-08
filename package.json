@@ -21,7 +21,9 @@
     "demo-ssr:serve:ssr": "node dist/demo-ssr/server/main.js",
     "demo-ssr:build:ssr": "ng run demo-ssr:build:production && ng run demo-ssr:server:production",
     "demo-ssr:prerender": "ng run demo-ssr:prerender",
-    "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
+    "format": "prettier \"projects/**/*.{ts,js,json,?css,html}\"",
+    "format:write": "npm run format -- --write",
+    "format:check": "npm run format -- --check",
     "pack": "copyfiles LICENSE README.md CHANGELOG.md dist/ngx-router-meta",
     "presemantic-release": "npm run build && npm run pack",
     "semantic-release": "semantic-release"

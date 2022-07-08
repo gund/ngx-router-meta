@@ -24,6 +24,7 @@ jobs:
     - stage: test
       install: npm ci --force
       script:
+        - npm run format:check
         - npm run build
         - npm run demo-ssr:prerender
         - npm run test:ci
