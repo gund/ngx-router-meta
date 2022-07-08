@@ -50,9 +50,7 @@
               "projects/demo-ssr/src/favicon.ico",
               "projects/demo-ssr/src/assets"
             ],
-            "styles": [
-              "projects/demo-ssr/src/styles.css"
-            ],
+            "styles": ["projects/demo-ssr/src/styles.css"],
             "scripts": [],
             "vendorChunk": true,
             "extractLicenses": false,
@@ -102,7 +100,7 @@
               ]
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
@@ -144,7 +142,7 @@
               "optimization": true
             }
           },
-          "defaultConfiguration": "production"
+          "defaultConfiguration": ""
         },
         "serve-ssr": {
           "builder": "@nguniversal/builders:ssr-dev-server",
@@ -173,17 +171,12 @@
               "/lazy/child1",
               "/lazy/child2"
             ]
-          },
-          "configurations": {
-            "production": {}
           }
         }
       }
     }
   },
   "cli": {
-    "schematicCollections": [
-      "@angular-eslint/schematics"
-    ]
+    "schematicCollections": ["@angular-eslint/schematics"]
   }
 }
