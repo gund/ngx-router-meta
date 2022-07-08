@@ -38,9 +38,7 @@ describe('Service: RouterMetaContext', () => {
     it('should emit on subscription', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       expect(callback).toHaveBeenCalledWith({});
     });
@@ -48,9 +46,7 @@ describe('Service: RouterMetaContext', () => {
     it('should return processed context', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideContext({ name: 'value' });
 
@@ -69,15 +65,13 @@ describe('Service: RouterMetaContext', () => {
     beforeEach(() => {
       processContext = jest
         .spyOn(getService(), '_processContext')
-        .mockImplementation(ctx => ctx);
+        .mockImplementation((ctx) => ctx);
     });
 
     it('should use `this._processContext()` on context', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       processContext.mockReturnValue({ mocked: true });
 
@@ -90,9 +84,7 @@ describe('Service: RouterMetaContext', () => {
     it('should set context object', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideContext({ ctx: true });
 
@@ -102,9 +94,7 @@ describe('Service: RouterMetaContext', () => {
     it('should merge context with previous', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideContext({ ctx: true });
       getService().provideContext({ extra: true });
@@ -118,12 +108,10 @@ describe('Service: RouterMetaContext', () => {
     it('should set context from observable', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideContext(
-        from([1, 2, 3]).pipe(map(n => ({ [`key_${n}`]: n }))),
+        from([1, 2, 3]).pipe(map((n) => ({ [`key_${n}`]: n }))),
       );
 
       expect(callback).toHaveBeenCalledWith({
@@ -136,9 +124,7 @@ describe('Service: RouterMetaContext', () => {
     it('should clear context between router navigations', fakeAsync(() => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideContext({ ctx: true });
 
@@ -158,15 +144,13 @@ describe('Service: RouterMetaContext', () => {
     beforeEach(() => {
       processContext = jest
         .spyOn(getService(), '_processContext')
-        .mockImplementation(ctx => ctx);
+        .mockImplementation((ctx) => ctx);
     });
 
     it('should use `this._processContext()` on context', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       processContext.mockReturnValue({ mocked: true });
 
@@ -179,9 +163,7 @@ describe('Service: RouterMetaContext', () => {
     it('should set context object', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext({ default: true });
 
@@ -191,9 +173,7 @@ describe('Service: RouterMetaContext', () => {
     it('should merge context with previous', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext({ default: true });
       getService().provideDefaultContext({ extra: true });
@@ -207,12 +187,10 @@ describe('Service: RouterMetaContext', () => {
     it('should set context from observable', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext(
-        from([1, 2, 3]).pipe(map(n => ({ [`key_${n}`]: n }))),
+        from([1, 2, 3]).pipe(map((n) => ({ [`key_${n}`]: n }))),
       );
 
       expect(callback).toHaveBeenCalledWith({
@@ -225,9 +203,7 @@ describe('Service: RouterMetaContext', () => {
     it('should persist context between router navigations', fakeAsync(() => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext({ default: true });
 
@@ -245,15 +221,13 @@ describe('Service: RouterMetaContext', () => {
     beforeEach(() => {
       jest
         .spyOn(getService(), '_processContext')
-        .mockImplementation(ctx => ctx);
+        .mockImplementation((ctx) => ctx);
     });
 
     it('should clear context but keep default context', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext({ default: true });
       getService().provideContext({ normal: true });
@@ -275,15 +249,13 @@ describe('Service: RouterMetaContext', () => {
     beforeEach(() => {
       jest
         .spyOn(getService(), '_processContext')
-        .mockImplementation(ctx => ctx);
+        .mockImplementation((ctx) => ctx);
     });
 
     it('should default context but keep normal context', () => {
       const callback = jest.fn();
 
-      getService()
-        .getContext()
-        .subscribe(callback);
+      getService().getContext().subscribe(callback);
 
       getService().provideDefaultContext({ default: true });
       getService().provideContext({ normal: true });

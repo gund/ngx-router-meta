@@ -107,13 +107,13 @@ export function unfoldContext<R>(
   ctx$$: Observable<Observable<MetaContext>>,
   mapFn: (ctx: MetaContext) => R,
 ): OperatorFunction<any, R> {
-  return o$ =>
+  return (o$) =>
     o$.pipe(
       switchMapTo(
         ctx$$.pipe(
           switchAll(),
           catchError(() => EMPTY),
-          map(ctx => mapFn(ctx)),
+          map((ctx) => mapFn(ctx)),
           scan((acc, ctx) => ({ ...acc, ...ctx })), // Merge contexts
           startWith({} as R),
         ),

@@ -64,9 +64,9 @@ export class RouterMetaService implements OnDestroy {
 
   private routeData$ = this.navigationEnd$.pipe(
     map(() => this.router.routerState.root),
-    map(route => this.getLastRoute(route)),
-    filter(route => route.outlet === 'primary'),
-    switchMap(route => route.data),
+    map((route) => this.getLastRoute(route)),
+    filter((route) => route.outlet === 'primary'),
+    switchMap((route) => route.data),
   );
 
   constructor(
@@ -111,10 +111,8 @@ export class RouterMetaService implements OnDestroy {
   }
 
   private updateAllMeta(data: Data, ctx: ProcessedMetaContext = {}) {
-    const {
-      _templates_: defaultTemplates,
-      ...defaultAllMeta
-    } = this.defaultMeta;
+    const { _templates_: defaultTemplates, ...defaultAllMeta } =
+      this.defaultMeta;
 
     if (!isDataWithMeta(data)) {
       this.resetAllMeta(ctx, defaultAllMeta);
@@ -137,7 +135,7 @@ export class RouterMetaService implements OnDestroy {
 
     this.updateTitle(title, ctx, templates, processedMeta);
 
-    Object.keys(otherMetaDefaulted).forEach(name =>
+    Object.keys(otherMetaDefaulted).forEach((name) =>
       this.updateMeta(
         name,
         otherMetaDefaulted[name],
@@ -149,8 +147,8 @@ export class RouterMetaService implements OnDestroy {
 
     // Cleanup leftover meta tags
     Object.keys(this.metaTags)
-      .filter(name => name in otherMetaDefaulted === false)
-      .forEach(name => this.resetMeta(name, ctx, templates, processedMeta));
+      .filter((name) => name in otherMetaDefaulted === false)
+      .forEach((name) => this.resetMeta(name, ctx, templates, processedMeta));
   }
 
   private resetAllMeta(ctx: ProcessedMetaContext, defaultMeta: RouteMeta) {
@@ -160,7 +158,7 @@ export class RouterMetaService implements OnDestroy {
 
     this.resetTitle(ctx, this.defaultMeta._templates_, meta);
 
-    Object.keys(metaDefaulted).forEach(name =>
+    Object.keys(metaDefaulted).forEach((name) =>
       this.resetMeta(name, ctx, this.defaultMeta._templates_, meta),
     );
   }

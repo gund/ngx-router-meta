@@ -35,7 +35,7 @@ export class ShowRouteComponent implements OnInit {
         : timer(0, 1000);
 
       this.routerMetaContextService.provideContext(
-        source$.pipe(map(i => ({ msg: 'Hi!', count: i }))),
+        source$.pipe(map((i) => ({ msg: 'Hi!', count: i }))),
       );
     }
   }
