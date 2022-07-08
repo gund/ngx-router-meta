@@ -22,6 +22,7 @@ stages:
 jobs:
   include:
     - stage: test
+      # Need to force install due to peer deps conflict from @orchestrator/ngx-testing
       install: npm ci --force
       script:
         - npm run format:check
@@ -35,5 +36,7 @@ jobs:
       deploy:
         provider: script
         skip_cleanup: true
+        # Need to force install due to peer deps conflict from @orchestrator/ngx-testing
+        install: npm ci --force
         script:
           - npm run semantic-release
