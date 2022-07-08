@@ -25,8 +25,8 @@
     "format:write": "npm run format -- --write",
     "format:check": "npm run format -- --check",
     "pack": "copyfiles LICENSE README.md CHANGELOG.md dist/ngx-router-meta",
-    "presemantic-release": "npm run build && npm run pack",
-    "semantic-release": "semantic-release"
+    "prerelease": "npm run pack",
+    "release": "semantic-release"
   },
   "dependencies": {
     "@angular/animations": "^14.0.5",
