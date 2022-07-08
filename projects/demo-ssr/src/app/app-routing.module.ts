@@ -31,16 +31,12 @@ const routes: RoutesWithMeta = [
   },
   {
     path: 'lazy',
-    loadChildren: () => import('./lazy/lazy.module').then(m => m.LazyModule),
+    loadChildren: () => import('./lazy/lazy.module').then((m) => m.LazyModule),
   },
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, {
-      initialNavigation: 'enabled',
-    }),
-  ],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
