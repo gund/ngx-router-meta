@@ -22,8 +22,10 @@ stages:
 jobs:
   include:
     - stage: test
+      install: npm ci --force
       script:
         - npm run build
+        - npm run demo-ssr:prerender
         - npm run test:ci
         - npm run test:report
     - stage: release

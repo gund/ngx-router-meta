@@ -17,13 +17,13 @@
     "test:ci": "ng test ngx-router-meta --runInBand --coverage",
     "test:report": "cd coverage && codecov",
     "lint": "ng lint ngx-router-meta",
-    "dev:ssr": "ng run demo-ssr:serve-ssr",
-    "serve:ssr": "node dist/demo-ssr/server/main.js",
-    "build:ssr": "ng build --configuration production && ng run demo-ssr:server:production",
-    "prerender": "ng run demo-ssr:prerender",
+    "demo-ssr:dev:ssr": "ng run demo-ssr:serve-ssr",
+    "demo-ssr:serve:ssr": "node dist/demo-ssr/server/main.js",
+    "demo-ssr:build:ssr": "ng run demo-ssr:build:production && ng run demo-ssr:server:production",
+    "demo-ssr:prerender": "ng run demo-ssr:prerender",
     "format": "prettier --write \"projects/**/*.{ts,js,json,?css,html}\"",
     "pack": "copyfiles LICENSE README.md CHANGELOG.md dist/ngx-router-meta",
-    "presemantic-release": "npm run pack",
+    "presemantic-release": "npm run build && npm run pack",
     "semantic-release": "semantic-release"
   },
   "dependencies": {
