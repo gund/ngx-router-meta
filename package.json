@@ -14,7 +14,7 @@
     "start": "ng serve ngx-router-meta",
     "build": "ng build ngx-router-meta",
     "test": "ng test ngx-router-meta",
-    "test:ci": "ng test ngx-router-meta --runInBand --coverage",
+    "test:ci": "ng test ngx-router-meta -i --coverage",
     "test:report": "cd coverage && codecov",
     "lint": "ng lint ngx-router-meta",
     "demo-ssr:dev:ssr": "ng run demo-ssr:serve-ssr",
