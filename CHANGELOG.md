@@ -1,5 +1,22 @@
 # NgxRouterMeta - Changelog
 
+# [2.0.0](https://github.com/gund/ngx-router-meta/compare/v1.0.0...v2.0.0) (2022-07-08)
+
+
+### Bug Fixes
+
+* **lib:** remove typed providers ([4772902](https://github.com/gund/ngx-router-meta/commit/4772902392138dd6a4b66be3587aad685a4dda0f))
+
+
+### Features
+
+* **ng:** update to Angular v14 ([5607544](https://github.com/gund/ngx-router-meta/commit/560754470375e7c68d68e0fc193e2407210b91e5))
+
+
+### BREAKING CHANGES
+
+* **ng:** Library is built using Angular v14
+
 # 1.0.0 (2019-09-04)
 
 
